@@ -58,7 +58,8 @@ public class SearchEngine{
 	//****TestNG Test to Search the SearchText in SearchBox****
 	public void SearchPageNavigation(String SearchText,String SearchURL) throws IOException
 	{
-		
+	   try
+	      {
 		prop= new Properties();
 		FileInputStream fis=new FileInputStream("C:\\Users\\Dell\\InstaworkAssignment\\src\\test\\java\\resources\\data.properties");
 		prop.load(fis);
@@ -113,7 +114,34 @@ public class SearchEngine{
 			Assert.assertTrue(false);
 			
 		}
+		}
 		
+		catch(Exception exception)
+		{
+			
+			if(exception.toString().contains("NoSuchElementException"))
+			{
+				String[] errorMsg = exception.getMessage().split(":");
+				System.out.println(errorMsg[0]);
+				
+			}
+			
+			else if(exception.toString().contains("FileNotFoundException"))
+			{
+				String[] errorMsg = exception.getMessage().split(":");
+				System.out.println(errorMsg[1]);
+				
+			}
+			
+			else
+			{
+				String[] errorMsg = exception.getMessage().split(":");
+				System.out.println(errorMsg[0]);
+				
+				
+			}
+			
+		}
 		
 	}
 
