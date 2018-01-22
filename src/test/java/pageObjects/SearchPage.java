@@ -22,23 +22,26 @@ public class SearchPage {
 		
 	}
 
-
 	//****Method to Enter SearchText into Search Box****
 	
 	public WebElement setSearchText()
 	{
-			 
-			return driver.findElement(searchbox);
+	try
+    	{
+    	if(!( driver.findElement(searchbox).isDisplayed()))
+    	{
+    		throw new NoSuchElementException("WebElement- 'searchbox' is not found");
+    	}
+    	return driver.findElement(searchbox);
+    	}
+    	catch(NoSuchElementException nse)
+    	{
+    		NoSuchElementException elementException = new NoSuchElementException("WebElement- 'searchbox' is not found");
+    		elementException.initCause(nse);
+    		throw elementException;
+    	} 
+			
  	   	
-	}
-
-	//****Method to Enter SearchText into Search Box****
-	
-	public WebElement searchResultbtn()
-	{
-			 
-			return driver.findElement(searchbox);
- 	  		
 	}
 
 	//****Method to Validate Title of the Page****
