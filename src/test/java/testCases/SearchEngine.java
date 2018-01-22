@@ -1,4 +1,4 @@
- package testCases;
+package testCases;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,9 +27,9 @@ public class SearchEngine{
 
 	@Parameters("browser")
 	@BeforeTest
-	
+
 	//****Method to Get BrowserName from XML File and Open it****
-	
+
 	public void setUp(String browser) throws IOException
 
 	{
@@ -58,103 +58,134 @@ public class SearchEngine{
 	//****TestNG Test to Search the SearchText in SearchBox****
 	public void SearchPageNavigation(String SearchText,String SearchURL) throws IOException
 	{
-	   try
-	      {
-		prop= new Properties();
-		FileInputStream fis=new FileInputStream("C:\\Users\\Dell\\InstaworkAssignment\\src\\test\\java\\resources\\data.properties");
-		prop.load(fis);
-
-		driver.get(prop.getProperty("url"));
-		SearchPage sp=new SearchPage(driver);
-	        sp.valTitle("google");
-		
-
-		System.out.println("Navigated to Google Search Page");
-
-		sp.setSearchText().sendKeys(SearchText);
-		sp.setSearchText().submit();
-
-		//****wait until the google page shows the result****
-		
-		WebElement myDynamicElement = (new WebDriverWait(driver, 10))
-				.until(ExpectedConditions.presenceOfElementLocated(By.id("resultStats")));
-
-
-		System.out.println("Navigated to Search Result Page");
-
-
-		List<WebElement> findElements = driver.findElements(By.xpath("//*[@id='rso']//h3/a"));
-		int urlPos=1;
-		Boolean flag=false;
-
-		//****Code to get list of All links on Search Result Page****
-		for (WebElement webElement : findElements)
+		try
 		{
-			String resultUrl=webElement.getAttribute("href");
-			if (resultUrl.equalsIgnoreCase(SearchURL))
+			prop= new Properties();
+			FileInputStream fis=new FileInputStream("C:\\Users\\Dell\\InstaworkAssignment\\src\\test\\java\\resources\\data.properties");
+			prop.load(fis);
+
+			driver.get(prop.getProperty("url"));
+			SearchPage sp=new SearchPage(driver);
+			sp.valTitle("google");
+
+
+			System.out.println("Navigated to Google Search Page");
+
+			sp.setSearchText().sendKeys(SearchText);
+			sp.setSearchText().submit();
+
+			//****wait until the google page shows the result****
+
+			WebElement myDynamicElement = (new WebDriverWait(driver, 10))
+					.until(ExpectedConditions.presenceOfElementLocated(By.id("resultStats")));
+
+
+			System.out.println("Navigated to Search Result Page");
+
+			//****Code to get the No of Search Result Pages****
+
+			String resultStat=driver.findElement(By.xpath("//*[@id='resultStats']")).getText();
+			//About 5,44,000 results (0.31 seconds) 
+			String[] rs=resultStat.split(" ");
+			String[] noOfResults=rs[1].split(",");
+			String searchPages="";	
+
+			for(int i = 0;i<noOfResults.length;i++)
 			{
-				flag=true;
-
-				break;
+				searchPages=searchPages+noOfResults[i];
 			}
-			urlPos=urlPos+1;
-		}
 
-		if(flag)
-		{
-			System.out.println("Searched URL found at Position: "+urlPos);
-			System.out.println("Test Passed");
-			Assert.assertTrue(true);
-			
-		}
-		else
-		{
-			System.out.println("Searched URL not found");
-			System.out.println("Test Failed");
-			Assert.assertTrue(false);
-			
-		}
-		}
+
+			long totalPages=Long.parseLong(searchPages);
+
+			int urlPos=1;
+			Boolean flag=false;
+			for(int i = 1;i<=totalPages;i++)
+
+			{		
+
+
+				List<WebElement> findElements = driver.findElements(By.xpath("//*[@id='rso']//h3/a"));
+				
+				//****Code to get list of All links on Search Result Page****
+				for (WebElement webElement : findElements)
+				{
+					String resultUrl=webElement.getAttribute("href");
+					if (resultUrl.equalsIgnoreCase(SearchURL))
+					{
+						flag=true;
+
+						break;
+					}
+					urlPos=urlPos+1;
+				}
+
+				if(flag)
+				{
+					System.out.println("Searched URL found on PageNo: "+i);
+					System.out.println("Searched URL found at Position: "+urlPos);
+					System.out.println("Test Passed");
+					Assert.assertTrue(true);
+					break;
+				}
+				else
+				{	
+
+					driver.findElement(By.linkText("Next")).click();
+					urlPos=1;
+
+
+				}
+				
+			}	
+
+				if(flag==false)
+				{
+					System.out.println("Searched URL not found");
+					System.out.println("Test Failed");
+					Assert.assertTrue(false);
+				}
+			}	
 		
-		catch(Exception exception)
-		{
-			
-			if(exception.toString().contains("NoSuchElementException"))
-			{
-				String[] errorMsg = exception.getMessage().split(":");
-				System.out.println(errorMsg[0]);
-				
+				catch(Exception exception)
+				{
+
+					if(exception.toString().contains("NoSuchElementException"))
+					{
+						String[] errorMsg = exception.getMessage().split(":");
+						System.out.println(errorMsg[0]);
+
+					}
+
+					else if(exception.toString().contains("FileNotFoundException"))
+					{
+						String[] errorMsg = exception.getMessage().split(":");
+						System.out.println(errorMsg[1]);
+
+					}
+
+					else
+					{
+						String[] errorMsg = exception.getMessage().split(":");
+						System.out.println(errorMsg[0]);
+
+
+					}
+
+				}
+
 			}
-			
-			else if(exception.toString().contains("FileNotFoundException"))
+
+			//****TestNG Test to perform the TearDown Activity****
+			@AfterTest
+			public void teardown()
 			{
-				String[] errorMsg = exception.getMessage().split(":");
-				System.out.println(errorMsg[1]);
-				
+
+				driver.close();
+				driver=null;
+
 			}
-			
-			else
-			{
-				String[] errorMsg = exception.getMessage().split(":");
-				System.out.println(errorMsg[0]);
-				
-				
-			}
-			
+
+
+
 		}
-		
-	}
-
-	//****TestNG Test to perform the TearDown Activity****
-	@AfterTest
-	public void teardown()
-	{
-
-		driver.close();
-		driver=null;
-		
-	}
-
-	
-
-}
