@@ -66,13 +66,13 @@ public class SearchEngine{
 
 		driver.get(prop.getProperty("url"));
 		SearchPage sp=new SearchPage(driver);
-	    sp.valTitle("google");
+	        sp.valTitle("google");
 		
 
 		System.out.println("Navigated to Google Search Page");
 
 		sp.setSearchText().sendKeys(SearchText);
-		sp.searchResultbtn().submit();
+		sp.setSearchText().submit();
 
 		//****wait until the google page shows the result****
 		
